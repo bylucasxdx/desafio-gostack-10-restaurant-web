@@ -39,22 +39,39 @@ const Dashboard: React.FC = () => {
     food: Omit<IFoodPlate, 'id' | 'available'>,
   ): Promise<void> {
     try {
-      api.post('/foods', food).then(response => {
-        setFoods(prevState => [...prevState, response.data]);
-      });
-    } catch (err) {
-      console.log(err);
+      const response = await api.post('/foods', food);
+
+      setFoods(prevState => [...prevState, response.data]);
+    } catch {
+      console.error('Error');
     }
   }
 
   async function handleUpdateFood(
     food: Omit<IFoodPlate, 'id' | 'available'>,
   ): Promise<void> {
-    // TODO UPDATE A FOOD PLATE ON THE API
+    try {
+      const response = await api.put(`/foods/${editingFood.id}`, {
+        ...food,
+        available: editingFood.available,
+      });
+
+      setFoods(prevState => [
+        ...prevState.filter(foodFilter => foodFilter.id !== editingFood.id),
+        response.data,
+      ]);
+    } catch {
+      console.error('Error');
+    }
   }
 
   async function handleDeleteFood(id: number): Promise<void> {
-    // TODO DELETE A FOOD PLATE FROM THE API
+    try {
+      await api.delete(`/foods/${id}`);
+      setFoods(prevState => prevState.filter(food => food.id !== id));
+    } catch {
+      console.error('Error');
+    }
   }
 
   function toggleModal(): void {
